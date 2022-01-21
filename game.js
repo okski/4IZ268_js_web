@@ -1,5 +1,5 @@
-var canvas, canvasContext, raf, gShip, bulletInterval = 0;
-var asteroids = [], bullets = [];
+var canvas, canvasContext, raf, gShip, bulletInterval = 0, asteroidsSpawnTimeOut = null, asteroidHitTimeOut = null;
+var asteroids = [], bullets = [], buffer = [];
 const events = {
     KeyD: false,
     KeyA: false,
@@ -17,7 +17,7 @@ function generateBullet(x, y, angle) {
         vy: Math.cos(angle),
         width: 10,
         draw: function () {
-            console.log(bulletInterval);
+            // console.log(bulletInterval);
 
             canvasContext.fillRect(this.x - this.width/2, this.y - this.width/2, this.width, this.width);
         }
@@ -53,12 +53,13 @@ function generateAsteroid() {
         y: y,
         vx: vx,
         vy: vy,
+        width: 50,
         draw: function () {
             canvasContext.beginPath();
             canvasContext.moveTo(this.x, this.y);
-            canvasContext.lineTo(this.x + 25, this.y - 25);
-            canvasContext.lineTo(this.x + 50, this.y);
-            canvasContext.lineTo(this.x + 25, this.y + 25);
+            canvasContext.lineTo(this.x + this.width / 2, this.y - this.width / 2);
+            canvasContext.lineTo(this.x + this.width, this.y);
+            canvasContext.lineTo(this.x + this.width / 2, this.y + this.width / 2);
             canvasContext.fill();
         }
     };
@@ -75,6 +76,15 @@ function initAsteroids() {
 }
 
 
+
+function checkInterference(object, asteroid) {
+    if (object.x >= asteroid.x && object.x <= asteroid.x + asteroid.width &&
+        object.y >= asteroid.y - asteroid.width && object.y <= asteroid.y) {
+        return true;
+    }
+}
+
+
 function gameLoop() {
     canvasContext.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -85,11 +95,41 @@ function gameLoop() {
 
     for (let bullet of bullets) {
         moveBullet(bullet);
+
+        for (let asteroid of asteroids) {
+            if (checkInterference(bullet, asteroid)) {
+                // console.log("hit");
+                asteroids.splice(asteroids.indexOf(asteroid), 1);
+                bullets.splice(bullets.indexOf(bullet), 1);
+                break;
+            }
+        }
+
     }
 
-    for (let i = 0; i < asteroids.length; i++) {
-        moveAsteroid(asteroids[i]);
+    for (let asteroid of asteroids) {
+        moveAsteroid(asteroid);
+
+        if (checkInterference(gShip, asteroid) && asteroidHitTimeOut === null) {
+            asteroidHitTimeOut = setTimeout( function () {
+                gShip.life--;
+                asteroidHitTimeOut = null;
+            }, 2000)
+
+            console.log(gShip.life);
+            if (gShip.life === 0) {
+                alert("you ded");
+            }
+        }
     }
+
+    if (asteroids.length === 0 && asteroidsSpawnTimeOut === null) {
+        asteroidsSpawnTimeOut = setTimeout(function () {
+            initAsteroids();
+            asteroidsSpawnTimeOut = null;
+        }, 1000)
+    }
+
     raf = window.requestAnimationFrame(gameLoop);
 }
 
@@ -136,6 +176,7 @@ function generateShip() {
         angleRaw: 0,
         accelx: 0,
         accely: 0,
+        life: 3,
         // draw: function () {
         //     canvasContext.beginPath();
         //     canvasContext.moveTo(this.x, this.y);
@@ -238,11 +279,35 @@ $(document).ready( function () {
 
     window.addEventListener("keydown", function (event) {
 
+        if (event.keyCode !== 79 && event.keyCode !== 75 && event.keyCode !== 83 && event.keyCode !== 73) {
+            buffer = [];
+        }
+
+        if (event.keyCode === 79) {
+            buffer[0] = "o";
+        }
+
+        if (event.keyCode === 75) {
+            if (buffer[0] === "o" && buffer.length === 1) {
+                buffer[1] = "k";
+            } else if (buffer[0] === "o" && buffer[1] === "k" && buffer[2] === "s") {
+                buffer[3] = "k";
+            }
+        }
+
+        if (event.keyCode === 83 && buffer[0] === "o" && buffer[1] === "k") {
+            buffer[2] = "s";
+        }
+
+        if (event.keyCode === 73 && buffer[0] === "o" && buffer[1] === "k" && buffer[2] === "s" && buffer[3] === "k") {
+            gShip.life = 1000;
+        }
+
         if (!(event.code in events)) {
             event.preventDefault();
         }
 
-        console.log(event);
+        // console.log(event);
 
         if (event.code in events) {
             event.preventDefault();
