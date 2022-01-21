@@ -1,4 +1,4 @@
-var canvas, canvasContext, raf, gShip;
+var canvas, canvasContext, raf, gShip, bulletInterval = 0;
 var asteroids = [], bullets = [];
 const events = {
     KeyD: false,
@@ -17,8 +17,9 @@ function generateBullet(x, y, angle) {
         vy: Math.cos(angle),
         width: 10,
         draw: function () {
-            canvasContext.fillRect(this.x + 10 - this.width/2, this.y - 10 - this.width/2, this.width, this.width);
+            console.log(bulletInterval);
 
+            canvasContext.fillRect(this.x - this.width/2, this.y - this.width/2, this.width, this.width);
         }
     }
 }
@@ -76,13 +77,30 @@ function initAsteroids() {
 
 function gameLoop() {
     canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+
+    bulletInterval++;
+
     moveShip();
 
+
+    for (let bullet of bullets) {
+        moveBullet(bullet);
+    }
 
     for (let i = 0; i < asteroids.length; i++) {
         moveAsteroid(asteroids[i]);
     }
     raf = window.requestAnimationFrame(gameLoop);
+}
+
+
+function moveBullet(bullet) {
+    // console.log(bullet);
+
+    bullet.x += 5 * bullet.vx;
+    bullet.y += 5 * bullet.vy * - 1;
+
+    bullet.draw();
 }
 
 
@@ -176,8 +194,11 @@ function generateShip() {
             this.accely *= 0.95;
         },
         shoot: function () {
-            let bullet = generateBullet(this.x, this.y, this.angle);
-            bullets.push(bullet);
+            if (bulletInterval > 20) {
+                let bullet = generateBullet(this.x, this.y, this.angle);
+                bullets.push(bullet);
+                bulletInterval = 0;
+            }
         }
     }
 }
