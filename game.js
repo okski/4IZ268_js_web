@@ -9,6 +9,7 @@ const events = {
     Escape: false,
     Space: false
 };
+var leaderboard;
 
 
 function generateShip() {
@@ -220,6 +221,8 @@ function initScore() {
 function gameLoop() {
     canvasContext.clearRect(0, 0, canvas.width, canvas.height);
 
+    // console.log(leaderboard);
+
     bulletInterval++;
 
     moveShip();
@@ -252,6 +255,22 @@ function gameLoop() {
 
             console.log(gShip.life);
             if (gShip.life === 0) {
+
+                // http://akce.cu.ma/leaderboard.json
+
+                $.ajax({
+                    url: "https://akce.cu.ma/getJSON.php",
+                    type: "GET",
+                    crossDomain: true,
+                    dataType: "json",
+                    success: function (json) {
+                        leaderboard = json;
+                        console.log(json);
+                        changeJSON();
+                        saveJSON();
+                    }
+                });
+
                 alert("you ded");
             }
         }
@@ -267,6 +286,48 @@ function gameLoop() {
     raf = window.requestAnimationFrame(gameLoop);
 }
 
+
+//TODO nickame grab
+function changeJSON() {
+
+    if (leaderboard.scoreboard[leaderboard.scoreboard.length - 1].score >= score) {
+        console.log(leaderboard);
+        return;
+    }
+
+    for (let i = 8; i >= 0; i--) {
+        if (leaderboard.scoreboard[i].score > score) {
+            leaderboard.scoreboard[i + 1].score = score;
+            break;
+        } else {
+            leaderboard.scoreboard[i + 1].score = leaderboard.scoreboard[i].score;
+            leaderboard.scoreboard[i + 1].nickname = leaderboard.scoreboard[i].nickname;
+        }
+    }
+
+    if (leaderboard.scoreboard[0].score < score) {
+        leaderboard.scoreboard[0].score = score;
+        //TODO nickname
+    }
+
+    // console.log(leaderboard);
+}
+
+function saveJSON() {
+    $.ajax({
+        url: "https://akce.cu.ma/saveJSON.php",
+        type: "POST",
+        dataType: "json",
+        data: JSON.stringify(leaderboard),
+        success: function () {
+            // console.log(res);
+            alert("done successfully")
+        }
+        // error: function (XMLHttpRequest, textStatus, errorThrown) {
+        //     console.log(XMLHttpRequest, textStatus, errorThrown);
+        // }
+    });
+}
 
 
 $(document).ready( function () {
@@ -322,5 +383,20 @@ $(document).ready( function () {
     })
 
     gameLoop();
+
+
+
+
+    // $.ajax({
+    //     url: "https://eso.vse.cz/~hosj03/klient_web/leaderboard.json",
+    //     type: "POST",
+    //     dataType: "json",
+    //     data: "leaderboard.json",
+    //     success: function (res) {
+    //         console.log(res);
+    //     }
+    // });
+
+
 
 });

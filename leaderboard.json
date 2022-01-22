@@ -1,0 +1,54 @@
+{
+  "scoreboard":[
+    {
+      "id": "1",
+      "nickname": "pokus1",
+      "score": "550"
+    },
+    {
+      "id": "2",
+      "nickname": "pokus2",
+      "score": "100"
+    },
+    {
+      "id": "3",
+      "nickname": "",
+      "score": ""
+    },
+    {
+      "id": "4",
+      "nickname": "",
+      "score": ""
+    },
+    {
+      "id": "5",
+      "nickname": "",
+      "score": ""
+    },
+    {
+      "id": "6",
+      "nickname": "",
+      "score": ""
+    },
+    {
+      "id": "7",
+      "nickname": "",
+      "score": ""
+    },
+    {
+      "id": "8",
+      "nickname": "",
+      "score": ""
+    },
+    {
+      "id": "9",
+      "nickname": "",
+      "score": ""
+    },
+    {
+      "id": "10",
+      "nickname": "",
+      "score": ""
+    }
+  ]
+}
