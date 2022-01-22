@@ -1,4 +1,5 @@
-var canvas, canvasContext, raf, gShip, bulletInterval = 0, asteroidsSpawnTimeOut = null, asteroidHitTimeOut = null;
+var canvas, canvasContext, raf, gShip, bulletInterval = 0, score = 0;
+var  asteroidsSpawnTimeOut = null, asteroidHitTimeOut = null;
 var asteroids = [], bullets = [], buffer = [];
 const events = {
     KeyD: false,
@@ -8,164 +9,6 @@ const events = {
     Escape: false,
     Space: false
 };
-
-function generateBullet(x, y, angle) {
-    return {
-        x: x,
-        y: y,
-        vx: Math.sin(angle),
-        vy: Math.cos(angle),
-        width: 10,
-        draw: function () {
-            // console.log(bulletInterval);
-
-            canvasContext.fillRect(this.x - this.width/2, this.y - this.width/2, this.width, this.width);
-        }
-    }
-}
-
-
-function generateAsteroid() {
-    let x, y, vx, vy;
-    x = Math.floor(Math.random() * canvas.width + 1);
-    y = Math.floor(Math.random() * canvas.height + 1);
-
-    while (x >= canvas.width/2 - 50 && x <= canvas.width/2 + 50) {
-        x = Math.floor(Math.random() * canvas.width + 1);
-    }
-
-    while (y >= canvas.height/2 - 25 && y <= canvas.height/2 + 25) {
-        y = Math.floor(Math.random() * canvas.height + 1);
-    }
-    vx = Math.random() * 3;
-    vy = Math.random() * 3;
-
-    if (Math.random() <= 0.5) {
-        vx *= -1;
-    }
-
-    if (Math.random() <= 0.5) {
-        vy *= -1;
-    }
-
-    return {
-        x: x,
-        y: y,
-        vx: vx,
-        vy: vy,
-        width: 50,
-        draw: function () {
-            canvasContext.beginPath();
-            canvasContext.moveTo(this.x, this.y);
-            canvasContext.lineTo(this.x + this.width / 2, this.y - this.width / 2);
-            canvasContext.lineTo(this.x + this.width, this.y);
-            canvasContext.lineTo(this.x + this.width / 2, this.y + this.width / 2);
-            canvasContext.fill();
-        }
-    };
-}
-
-
-function initAsteroids() {
-    let amount;
-    amount = Math.floor(Math.random() * 10 + 3);
-
-    for(let i = 0; i < amount; i++) {
-        asteroids.push(generateAsteroid());
-    }
-}
-
-
-
-function checkInterference(object, asteroid) {
-    if (object.x >= asteroid.x && object.x <= asteroid.x + asteroid.width &&
-        object.y >= asteroid.y - asteroid.width && object.y <= asteroid.y) {
-        return true;
-    }
-}
-
-
-function gameLoop() {
-    canvasContext.clearRect(0, 0, canvas.width, canvas.height);
-
-    bulletInterval++;
-
-    moveShip();
-
-
-    for (let bullet of bullets) {
-        moveBullet(bullet);
-
-        for (let asteroid of asteroids) {
-            if (checkInterference(bullet, asteroid)) {
-                // console.log("hit");
-                asteroids.splice(asteroids.indexOf(asteroid), 1);
-                bullets.splice(bullets.indexOf(bullet), 1);
-                break;
-            }
-        }
-
-    }
-
-    for (let asteroid of asteroids) {
-        moveAsteroid(asteroid);
-
-        if (checkInterference(gShip, asteroid) && asteroidHitTimeOut === null) {
-            asteroidHitTimeOut = setTimeout( function () {
-                gShip.life--;
-                asteroidHitTimeOut = null;
-            }, 2000)
-
-            console.log(gShip.life);
-            if (gShip.life === 0) {
-                alert("you ded");
-            }
-        }
-    }
-
-    if (asteroids.length === 0 && asteroidsSpawnTimeOut === null) {
-        asteroidsSpawnTimeOut = setTimeout(function () {
-            initAsteroids();
-            asteroidsSpawnTimeOut = null;
-        }, 1000)
-    }
-
-    raf = window.requestAnimationFrame(gameLoop);
-}
-
-
-function moveBullet(bullet) {
-    // console.log(bullet);
-
-    bullet.x += 5 * bullet.vx;
-    bullet.y += 5 * bullet.vy * - 1;
-
-    bullet.draw();
-}
-
-
-function moveAsteroid(asteroid) {
-    asteroid.draw();
-
-    asteroid.x += asteroid.vx;
-    asteroid.y += asteroid.vy;
-
-    if (asteroid.x > canvas.width) {
-        asteroid.x = 0;
-    }
-
-    if (asteroid.x < 0) {
-        asteroid.x = canvas.width;
-    }
-
-    if (asteroid.y > canvas.height) {
-        asteroid.y = 0;
-    }
-
-    if (asteroid.y < 0) {
-        asteroid.y = canvas.height;
-    }
-}
 
 
 function generateShip() {
@@ -177,16 +20,9 @@ function generateShip() {
         accelx: 0,
         accely: 0,
         life: 3,
-        // draw: function () {
-        //     canvasContext.beginPath();
-        //     canvasContext.moveTo(this.x, this.y);
-        //     canvasContext.lineTo(this.x + 20, this.y);
-        //     canvasContext.lineTo(this.x + 10, this.y - 20);
-        //     canvasContext.fill();
-        // },
         draw: function () {
-            canvasContext.fillStyle = "#FF0000";
-            canvasContext.fillRect(this.x -20/2, this.y -20/2, 20, 20);
+            // canvasContext.fillStyle = "#FF0000";
+            // canvasContext.fillRect(this.x -20/2, this.y -20/2, 20, 20);
 
             canvasContext.fillStyle = "#000000";
             let x1, y1, x2, y2, x3, y3, x1r, y1r, x2r, y2r, x3r, y3r;
@@ -245,6 +81,116 @@ function generateShip() {
 }
 
 
+function generateBullet(x, y, angle) {
+    return {
+        x: x,
+        y: y,
+        vecx: Math.sin(angle),
+        vecy: Math.cos(angle),
+        width: 10,
+        draw: function () {
+            canvasContext.fillRect(this.x - this.width/2, this.y - this.width/2, this.width, this.width);
+        }
+    }
+}
+
+
+function generateAsteroid() {
+    let x, y, vecx, vecy;
+    x = Math.floor(Math.random() * canvas.width + 1);
+    y = Math.floor(Math.random() * canvas.height + 1);
+
+    while (x >= gShip.x - 50 && x <= gShip.x + 50) {
+        x = Math.floor(Math.random() * canvas.width + 1);
+    }
+
+    while (y >= gShip.y - 25 && y <= gShip.y + 25) {
+        y = Math.floor(Math.random() * canvas.height + 1);
+    }
+
+    vecx = Math.random() * 3;
+    vecy = Math.random() * 3;
+
+    if (Math.random() <= 0.5) {
+        vecx *= -1;
+    }
+
+    if (Math.random() <= 0.5) {
+        vecy *= -1;
+    }
+
+    return {
+        x: x,
+        y: y,
+        vecx: vecx,
+        vecy: vecy,
+        width: 50,
+        draw: function () {
+            // canvasContext.fillStyle = "#FF0000";
+            // canvasContext.fillRect(this.x, this.y - this.width/2, this.width, this.width);
+
+            canvasContext.fillStyle = "#000000";
+            canvasContext.beginPath();
+            canvasContext.moveTo(this.x, this.y);
+            canvasContext.lineTo(this.x + this.width / 2, this.y - this.width / 2);
+            canvasContext.lineTo(this.x + this.width, this.y);
+            canvasContext.lineTo(this.x + this.width / 2, this.y + this.width / 2);
+            canvasContext.fill();
+        }
+    };
+}
+
+
+function initAsteroids() {
+    let amount;
+    amount = Math.floor(Math.random() * 10 + 10);
+
+    for(let i = 0; i < amount; i++) {
+        asteroids.push(generateAsteroid());
+    }
+}
+
+
+function checkInterference(object, asteroid) {
+    if (object.x >= asteroid.x && object.x <= asteroid.x + asteroid.width &&
+        object.y >= asteroid.y - asteroid.width/2 && object.y <= asteroid.y + asteroid.width/2) {
+        return true;
+    }
+}
+
+
+function moveBullet(bullet) {
+    bullet.x += 5 * bullet.vecx;
+    bullet.y += 5 * bullet.vecy * - 1;
+
+    bullet.draw();
+}
+
+
+function moveAsteroid(asteroid) {
+    asteroid.draw();
+
+    asteroid.x += asteroid.vecx;
+    asteroid.y += asteroid.vecy;
+
+    if (asteroid.x > canvas.width) {
+        asteroid.x = 0;
+    }
+
+    if (asteroid.x < 0) {
+        asteroid.x = canvas.width;
+    }
+
+    if (asteroid.y > canvas.height) {
+        asteroid.y = 0;
+    }
+
+    if (asteroid.y < 0) {
+        asteroid.y = canvas.height;
+    }
+}
+
+
 function moveShip() {
     const shipMovement = {
         KeyD: "turnRight",
@@ -263,19 +209,72 @@ function moveShip() {
     gShip.draw();
 }
 
+function initScore() {
+    canvasContext.font = '20px serif';
+    canvasContext.fillText('Skóre: ' + score, 10, 25);
 
 
+}
 
 
+function gameLoop() {
+    canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+
+    bulletInterval++;
+
+    moveShip();
+    initScore();
+
+    for (let bullet of bullets) {
+        moveBullet(bullet);
+
+        for (let asteroid of asteroids) {
+            if (checkInterference(bullet, asteroid)) {
+                // console.log("hit");
+                asteroids.splice(asteroids.indexOf(asteroid), 1);
+                bullets.splice(bullets.indexOf(bullet), 1);
+                score += 50;
+
+                break;
+            }
+        }
+
+    }
+
+    for (let asteroid of asteroids) {
+        moveAsteroid(asteroid);
+
+        if (checkInterference(gShip, asteroid) && asteroidHitTimeOut === null) {
+            asteroidHitTimeOut = setTimeout( function () {
+                gShip.life--;
+                asteroidHitTimeOut = null;
+            }, 2000)
+
+            console.log(gShip.life);
+            if (gShip.life === 0) {
+                alert("you ded");
+            }
+        }
+    }
+
+    if (asteroids.length === 0 && asteroidsSpawnTimeOut === null) {
+        asteroidsSpawnTimeOut = setTimeout(function () {
+            initAsteroids();
+            asteroidsSpawnTimeOut = null;
+        }, 1000)
+    }
+
+    raf = window.requestAnimationFrame(gameLoop);
+}
 
 
 
 $(document).ready( function () {
     canvas = document.getElementById('game');
     canvasContext = canvas.getContext('2d');
-
-    initAsteroids();
     gShip = generateShip();
+    initAsteroids();
+    // initScore();
 
     window.addEventListener("keydown", function (event) {
 

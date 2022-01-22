@@ -1,0 +1,25 @@
+* {
+    background-color: black;
+    color: white;
+    width: inherit;
+}
+
+.container {
+    height: 500px;
+    position: relative;
+}
+
+.buttons {
+    margin: 0;
+    position: absolute;
+    top: 25%;
+    left: 50%;
+
+    /*transform: translate(-50%, -50%);*/
+}
+
+button {
+    height: 50px;
+    width: 150px;
+    margin: 10px 0 100px 0;
+}
