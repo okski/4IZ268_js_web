@@ -65,10 +65,18 @@ function generateShip() {
 
         },
         turnRight: function () {
-            this.angleRaw += 5;
+            if (localStorage.getItem("rotationDegree")) {
+                this.angleRaw += localStorage.getItem("rotationDegree");
+            } else {
+                this.angleRaw += sessionStorage.getItem("rotationDegree")
+            }
         },
         turnLeft: function () {
-            this.angleRaw -= 5;
+            if (localStorage.getItem("rotationDegree")) {
+                this.angleRaw -= localStorage.getItem("rotationDegree");
+            } else {
+                this.angleRaw -= sessionStorage.getItem("rotationDegree")
+            }
         },
         moveForward: function () {
             this.accelx = 2 * Math.sin(this.angle);
@@ -304,6 +312,10 @@ function gameLoop() {
 
 function checkKeyForNickName(event) {
     console.log(event);
+
+    if (event.key === "Escape") {
+        //TODO nabídka vrátit se zpět nebo pokračovat
+    }
 
     if (event.key === "Enter") {
         changeJSON();

@@ -1,6 +1,9 @@
 var leaderboard, buffer = [];
 
 $(document).ready( function () {
+    sessionStorage.setItem("rotationDegree", "5");
+
+
     window.addEventListener("keypress", function (event) {
         if (event.code === "KeyR") {
             buffer[0] = "r";
