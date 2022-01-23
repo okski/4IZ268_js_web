@@ -223,8 +223,6 @@ function moveShip() {
 function initScore() {
     canvasContext.font = '20px serif';
     canvasContext.fillText('Skóre: ' + score, 10, 25);
-
-
 }
 
 

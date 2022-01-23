@@ -13,14 +13,16 @@
     margin: 0;
     position: absolute;
     top: 25%;
-    left: 50%;
-
-    /*transform: translate(-50%, -50%);*/
+    left: 45%;
 }
 
 button {
-    height: 50px;
-    width: 150px;
+    height: 100%;
+    width: 100%;
     margin: 10px 0 100px 0;
-    font-size: 28px;
+    font-size: 1.75em;
+}
+
+button:hover {
+    cursor: pointer;
 }
