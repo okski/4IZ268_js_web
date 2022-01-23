@@ -3,16 +3,25 @@
     <head>
         <meta charset="UTF-8">
         <title>Javascript aplikace | hra</title>
-        <style>
-            canvas {
-                border: 1px solid black;
-            }
-        </style>
+        <link rel="stylesheet" href="game.css">
     </head>
     <body>
         <canvas id="game" width="800" height="600"></canvas>
         <script src="jquery-3.6.0.min.js"></script>
 <!--        <script src="menu.js"></script>-->
         <script  src="game.js"></script>
+        <div id="nickname" class="placement">
+            <label for="nicknameInput">Zadej svoji přezdívku</label>
+            <br>
+            <input type="text" id="nicknameInput" tabindex="1" required>
+            <br>
+            <button id="sendButton" onclick="changeJSON()" tabindex="2">Potvrdit</button>
+        </div>
+        <div id="gameReset" class="placement">
+            <label for="resetButton">Chceš začít znovu?</label>
+            <br>
+            <button id="resetButton" tabindex="1">Ano</button>
+            <button id="endButton" tabindex="2">Ne</button>
+        </div>
     </body>
 </html>

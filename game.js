@@ -9,7 +9,17 @@ const events = {
     Escape: false,
     Space: false
 };
-var leaderboard;
+
+const allowedKeys = {
+    q: "q", w: "w", e: "e", r: "r", t: "t", z: "z", u: "u", i: "i", o: "o", p: "p",
+    a: "a", s: "s", d: "d", f: "f", g: "g", h: "h", j: "j", k: "k", l: "l",
+    y: "y", x: "x", c: "c", v: "v", b: "b", n: "n", m: "m",
+    Q: "Q", W: "W", E: "E", R: "R", T: "T", Z: "Z", U: "U", I: "I", O: "O", P: "P",
+    A: "A", S: "S", D: "D", F: "F", G: "G", H: "H", J: "J", K: "K", L: "L",
+    Y: "Y", X: "X", C: "C", V: "V", B: "B", N: "N", M: "M",
+    0: "0", 1: "1", 2: "2", 3: "3", 4: "4", 5: "5", 6: "6", 7: "7", 8: "8", 9: "9"
+}
+var leaderboard, nickname, nicknameInput, gameReset, gameResetButton, gameEndButton;
 
 
 function generateShip() {
@@ -256,7 +266,8 @@ function gameLoop() {
             console.log(gShip.life);
             if (gShip.life === 0) {
 
-                // http://akce.cu.ma/leaderboard.json
+                // https://akce.cu.ma/getJSON.php
+                // leaderboard.json
 
                 $.ajax({
                     url: "https://akce.cu.ma/getJSON.php",
@@ -266,12 +277,17 @@ function gameLoop() {
                     success: function (json) {
                         leaderboard = json;
                         console.log(json);
-                        changeJSON();
-                        saveJSON();
+                        if (leaderboard.scoreboard[leaderboard.scoreboard.length - 1].score >= score) {
+                            // console.log(leaderboard);
+                            gameRestart();
+                            return;
+                        }
+                        nickname.style.visibility = "visible";
+                        nicknameInput.focus();
                     }
                 });
 
-                alert("you ded");
+                // alert("you ded");
             }
         }
     }
@@ -283,21 +299,36 @@ function gameLoop() {
         }, 1000)
     }
 
-    raf = window.requestAnimationFrame(gameLoop);
+    if (gShip.life >= 0) {
+        raf = window.requestAnimationFrame(gameLoop);
+    }
+}
+
+function checkKeyForNickName(event) {
+    console.log(event);
+
+    if (event.key === "Enter") {
+        changeJSON();
+        return;
+    }
+
+    if (!(event.key in allowedKeys) && !(event.code === 'Backspace') && !(event.code === 'Delete')) {
+        event.preventDefault();
+        // console.log(event.code);
+        // console.log(event.which);
+    }
+
 }
 
 
 //TODO nickame grab
 function changeJSON() {
 
-    if (leaderboard.scoreboard[leaderboard.scoreboard.length - 1].score >= score) {
-        console.log(leaderboard);
-        return;
-    }
-
     for (let i = 8; i >= 0; i--) {
-        if (leaderboard.scoreboard[i].score > score) {
+        if (leaderboard.scoreboard[i].score >= score) {
             leaderboard.scoreboard[i + 1].score = score;
+            leaderboard.scoreboard[i + 1].nickname = nicknameInput.value;
+            console.log(nicknameInput.value);
             break;
         } else {
             leaderboard.scoreboard[i + 1].score = leaderboard.scoreboard[i].score;
@@ -307,10 +338,11 @@ function changeJSON() {
 
     if (leaderboard.scoreboard[0].score < score) {
         leaderboard.scoreboard[0].score = score;
-        //TODO nickname
+        console.log(nicknameInput.value);
+        leaderboard.scoreboard[0].nickname = nicknameInput.value;
     }
 
-    // console.log(leaderboard);
+    saveJSON();
 }
 
 function saveJSON() {
@@ -319,14 +351,35 @@ function saveJSON() {
         type: "POST",
         dataType: "json",
         data: JSON.stringify(leaderboard),
-        success: function () {
+        success: function (res) {
             // console.log(res);
-            alert("done successfully")
+            // alert("done successfully")
         }
         // error: function (XMLHttpRequest, textStatus, errorThrown) {
         //     console.log(XMLHttpRequest, textStatus, errorThrown);
         // }
     });
+
+    gameRestart();
+}
+
+function gameRestart(){
+    nickname.style.visibility = "hidden";
+    gameReset.style.visibility = "visible";
+
+    gameResetButton.focus();
+
+    gameEndButton.onclick = function () {
+        location.href='menu.html';
+    };
+
+    gameResetButton.onclick = function () {
+        gameReset.style.visibility = "hidden";
+        gShip = generateShip();
+        initAsteroids();
+        score = 0;
+        gameLoop();
+    }
 }
 
 
@@ -335,19 +388,35 @@ $(document).ready( function () {
     canvasContext = canvas.getContext('2d');
     gShip = generateShip();
     initAsteroids();
-    // initScore();
+
+    nickname = document.getElementById("nickname");
+    nicknameInput = document.getElementById("nicknameInput");
+    gameReset = document.getElementById("gameReset");
+    gameResetButton = document.getElementById("resetButton");
+    gameEndButton = document.getElementById("endButton");
+
+
+    nicknameInput.addEventListener("keypress", function (event) {
+        checkKeyForNickName(event, nicknameInput);
+    });
+    nicknameInput.addEventListener("keydown", function (event) {
+        if (event.ctrlKey && event.code === "KeyV") {
+            event.preventDefault();
+            console.log(event);
+        }
+    });
 
     window.addEventListener("keydown", function (event) {
 
-        if (event.keyCode !== 79 && event.keyCode !== 75 && event.keyCode !== 83 && event.keyCode !== 73) {
+        if (event.which !== 79 && event.which !== 75 && event.which !== 83 && event.which !== 73) {
             buffer = [];
         }
 
-        if (event.keyCode === 79) {
+        if (event.which === 79) {
             buffer[0] = "o";
         }
 
-        if (event.keyCode === 75) {
+        if (event.which === 75) {
             if (buffer[0] === "o" && buffer.length === 1) {
                 buffer[1] = "k";
             } else if (buffer[0] === "o" && buffer[1] === "k" && buffer[2] === "s") {
@@ -355,48 +424,31 @@ $(document).ready( function () {
             }
         }
 
-        if (event.keyCode === 83 && buffer[0] === "o" && buffer[1] === "k") {
+        if (event.which === 83 && buffer[0] === "o" && buffer[1] === "k") {
             buffer[2] = "s";
         }
 
-        if (event.keyCode === 73 && buffer[0] === "o" && buffer[1] === "k" && buffer[2] === "s" && buffer[3] === "k") {
+        if (event.which === 73 && buffer[0] === "o" && buffer[1] === "k" && buffer[2] === "s" && buffer[3] === "k") {
             gShip.life = 1000;
         }
 
-        if (!(event.code in events)) {
+
+        if (event.code === "Space") {
             event.preventDefault();
         }
 
-        // console.log(event);
-
         if (event.code in events) {
-            event.preventDefault();
+            // event.preventDefault();
             events[event.code] = true;
         }
     })
 
     window.addEventListener("keyup", function (event) {
         if (event.code in events) {
-            event.preventDefault();
+            // event.preventDefault();
             events[event.code] = false;
         }
     })
 
     gameLoop();
-
-
-
-
-    // $.ajax({
-    //     url: "https://eso.vse.cz/~hosj03/klient_web/leaderboard.json",
-    //     type: "POST",
-    //     dataType: "json",
-    //     data: "leaderboard.json",
-    //     success: function (res) {
-    //         console.log(res);
-    //     }
-    // });
-
-
-
 });
