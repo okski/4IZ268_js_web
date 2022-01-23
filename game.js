@@ -65,17 +65,25 @@ function generateShip() {
 
         },
         turnRight: function () {
-            if (localStorage.getItem("rotationDegree")) {
-                this.angleRaw += localStorage.getItem("rotationDegree");
+            console.log(this.angleRaw);
+            if (sessionStorage.getItem("rotationDegree")) {
+                this.angleRaw += Number(sessionStorage.getItem("rotationDegree"));
+            } else if (localStorage.getItem("rotationDegree")) {
+                this.angleRaw += Number(localStorage.getItem("rotationDegree"));
             } else {
-                this.angleRaw += sessionStorage.getItem("rotationDegree")
+                sessionStorage.setItem("rotationDegree", Number("5"));
+                this.angleRaw += Number(localStorage.getItem("rotationDegree"));
             }
         },
         turnLeft: function () {
-            if (localStorage.getItem("rotationDegree")) {
-                this.angleRaw -= localStorage.getItem("rotationDegree");
+            console.log(this.angleRaw);
+            if (sessionStorage.getItem("rotationDegree")) {
+                this.angleRaw -= Number(sessionStorage.getItem("rotationDegree"));
+            } else if (localStorage.getItem("rotationDegree")) {
+                this.angleRaw -= Number(localStorage.getItem("rotationDegree"));
             } else {
-                this.angleRaw -= sessionStorage.getItem("rotationDegree")
+                sessionStorage.setItem("rotationDegree", Number("5"));
+                this.angleRaw -= Number(localStorage.getItem("rotationDegree"));
             }
         },
         moveForward: function () {

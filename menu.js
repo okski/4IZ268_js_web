@@ -1,7 +1,9 @@
 var leaderboard, buffer = [];
 
 $(document).ready( function () {
-    sessionStorage.setItem("rotationDegree", "5");
+    // if (localStorage.getItem("rotationDegree") && sessionStorage.isNewSession) {
+    //     sessionStorage.setItem("rotationDegree", localStorage.getItem("rotationDegree"));
+    // }
 
 
     window.addEventListener("keypress", function (event) {

@@ -1,10 +1,19 @@
 var slider, value;
 
 $(document).ready(function () {
+
+
     slider = document.getElementById("range");
     value = document.getElementById("value");
 
-    slider.value = sessionStorage.getItem("rotationDegree");
+    if (sessionStorage.getItem("rotationDegree")) {
+        slider.value = sessionStorage.getItem("rotationDegree");
+    } else if (localStorage.getItem("rotationDegree")) {
+        slider.value = localStorage.getItem("rotationDegree");
+    } else {
+        sessionStorage.setItem("rotationDegree", Number("5"));
+        slider.value = sessionStorage.getItem("rotationDegree");
+    }
 
     value.innerHTML = slider.value;
 
@@ -14,17 +23,18 @@ $(document).ready(function () {
 })
 
 function applySettings() {
-    sessionStorage.setItem("rotationDegree", value.innerHTML);
+    sessionStorage.setItem("rotationDegree", Number(value.innerHTML));
 }
 
 function saveSettings() {
-    sessionStorage.setItem("rotationDegree", value.innerHTML);
-    localStorage.setItem("rotationDegree", value.innerHTML);
+    sessionStorage.setItem("rotationDegree", Number(value.innerHTML));
+    localStorage.setItem("rotationDegree", Number(value.innerHTML));
 }
 
 function resetSettings() {
     localStorage.removeItem("rotationDegree");
-    sessionStorage.setItem("rotationDegree", "5");
+    sessionStorage.removeItem("rotationDegree");
+    // sessionStorage.setItem("rotationDegree", Number("5"));
     slider.value = sessionStorage.getItem("rotationDegree");
     value.innerHTML =  slider.value;
 }
