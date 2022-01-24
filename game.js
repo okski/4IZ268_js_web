@@ -66,6 +66,15 @@ function generateShip() {
         },
         turnRight: function () {
             // console.log(this.angleRaw);
+            if (localStorage.getItem("rotationDegree") > 90) {
+                localStorage.setItem("rotationDegree", Number("5"));
+            }
+
+            if (sessionStorage.getItem("rotationDegree") > 90) {
+                sessionStorage.setItem("rotationDegree", Number("5"));
+            }
+
+
             if (sessionStorage.getItem("rotationDegree")) {
                 this.angleRaw += Number(sessionStorage.getItem("rotationDegree"));
             } else if (localStorage.getItem("rotationDegree")) {
@@ -77,6 +86,14 @@ function generateShip() {
         },
         turnLeft: function () {
             // console.log(this.angleRaw);
+            if (localStorage.getItem("rotationDegree") > 90) {
+                localStorage.setItem("rotationDegree", Number("5"));
+            }
+
+            if (sessionStorage.getItem("rotationDegree") > 90) {
+                sessionStorage.setItem("rotationDegree", Number("5"));
+            }
+
             if (sessionStorage.getItem("rotationDegree")) {
                 this.angleRaw -= Number(sessionStorage.getItem("rotationDegree"));
             } else if (localStorage.getItem("rotationDegree")) {
@@ -170,7 +187,7 @@ function generateAsteroid() {
 
 function initAsteroids() {
     let amount;
-    amount = Math.floor(Math.random() * 10 + 1);
+    amount = Math.floor(Math.random() * 10 + 10);
 
     for(let i = 0; i < amount; i++) {
         asteroids.push(generateAsteroid());
@@ -310,8 +327,8 @@ function gameLoop() {
             asteroidHitTimeOut = setTimeout( function () {
                 asteroidHitTimeOut = null;
             }, 2000)
-            gShip.life--;
             renderLife();
+            gShip.life--;
 
             console.log(gShip.life);
             if (gShip.life === 0) {
@@ -378,6 +395,10 @@ function checkKeyForNickName(event) {
 
 
 function checkNickname() {
+    if (nicknameInput.value.length === 0) {
+        return true;
+    }
+
     for (const letter of nicknameInput.value) {
         if (!(letter in allowedKeys)) {
             return true
