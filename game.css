@@ -16,6 +16,14 @@ body {
     padding-left: 20px;
 }
 
+#nicknameInput {
+    width: 80%;
+}
+
+#nicknameInput:focus:after {
+    "A-Z nebo a-z nebo 0-9, 1 až 15 znaků"
+}
+
 #resetButton {
     margin-right: 20px;
 }
@@ -40,4 +48,9 @@ canvas {
 
 button:hover {
     cursor: pointer;
+}
+
+#badNickname {
+    margin: 0;
+    color: darkred;
 }

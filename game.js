@@ -65,7 +65,7 @@ function generateShip() {
 
         },
         turnRight: function () {
-            console.log(this.angleRaw);
+            // console.log(this.angleRaw);
             if (sessionStorage.getItem("rotationDegree")) {
                 this.angleRaw += Number(sessionStorage.getItem("rotationDegree"));
             } else if (localStorage.getItem("rotationDegree")) {
@@ -76,7 +76,7 @@ function generateShip() {
             }
         },
         turnLeft: function () {
-            console.log(this.angleRaw);
+            // console.log(this.angleRaw);
             if (sessionStorage.getItem("rotationDegree")) {
                 this.angleRaw -= Number(sessionStorage.getItem("rotationDegree"));
             } else if (localStorage.getItem("rotationDegree")) {
@@ -170,7 +170,7 @@ function generateAsteroid() {
 
 function initAsteroids() {
     let amount;
-    amount = Math.floor(Math.random() * 10 + 10);
+    amount = Math.floor(Math.random() * 10 + 1);
 
     for(let i = 0; i < amount; i++) {
         asteroids.push(generateAsteroid());
@@ -242,6 +242,40 @@ function initScore() {
 }
 
 
+function renderLife() {
+    // if (gShip.life === 3) {
+    //     canvasContext.fillRect( 10,  30, 10, 10);
+    //     canvasContext.fillRect( 25,  30, 10, 10);
+    //     canvasContext.fillRect( 40,  30, 10, 10);
+    //     canvasContext.fillRect( 55,  30, 10, 10);
+    // }
+
+    if (gShip.life > 3) {
+        canvasContext.fillText("Životy: " + gShip.life.toString(), 10, 50)
+    }
+
+    if (gShip.life === 3) {
+        canvasContext.fillRect( 10,  30, 10, 10);
+        canvasContext.fillRect( 25,  30, 10, 10);
+        canvasContext.fillRect( 40,  30, 10, 10);
+        // canvasContext.strokeRect( 55,  30, 10, 10);
+    }
+
+    if (gShip.life === 2) {
+        canvasContext.fillRect( 10,  30, 10, 10);
+        canvasContext.fillRect( 25,  30, 10, 10);
+        canvasContext.strokeRect( 40,  30, 10, 10);
+        // canvasContext.strokeRect( 55,  30, 10, 10);
+    }
+
+    if (gShip.life === 1) {
+        canvasContext.fillRect( 10,  30, 10, 10);
+        canvasContext.strokeRect( 25,  30, 10, 10);
+        canvasContext.strokeRect( 40,  30, 10, 10);
+        // canvasContext.strokeRect( 55,  30, 10, 10);
+    }
+}
+
 function gameLoop() {
     canvasContext.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -251,6 +285,7 @@ function gameLoop() {
 
     moveShip();
     initScore();
+    renderLife();
 
     for (let bullet of bullets) {
         moveBullet(bullet);
@@ -273,9 +308,10 @@ function gameLoop() {
 
         if (checkInterference(gShip, asteroid) && asteroidHitTimeOut === null) {
             asteroidHitTimeOut = setTimeout( function () {
-                gShip.life--;
                 asteroidHitTimeOut = null;
             }, 2000)
+            gShip.life--;
+            renderLife();
 
             console.log(gShip.life);
             if (gShip.life === 0) {
@@ -290,7 +326,7 @@ function gameLoop() {
                     dataType: "json",
                     success: function (json) {
                         leaderboard = json;
-                        console.log(json);
+                        // console.log(json);
                         if (leaderboard.scoreboard[leaderboard.scoreboard.length - 1].score >= score) {
                             // console.log(leaderboard);
                             gameRestart();
@@ -301,10 +337,13 @@ function gameLoop() {
                     }
                 });
 
+                return;
                 // alert("you ded");
             }
         }
     }
+
+
 
     if (asteroids.length === 0 && asteroidsSpawnTimeOut === null) {
         asteroidsSpawnTimeOut = setTimeout(function () {
@@ -319,7 +358,7 @@ function gameLoop() {
 }
 
 function checkKeyForNickName(event) {
-    console.log(event);
+    // console.log(event);
 
     if (event.key === "Escape") {
         //TODO nabídka vrátit se zpět nebo pokračovat
@@ -327,26 +366,44 @@ function checkKeyForNickName(event) {
 
     if (event.key === "Enter") {
         changeJSON();
-        return;
     }
 
-    if (!(event.key in allowedKeys) && !(event.code === 'Backspace') && !(event.code === 'Delete')) {
-        event.preventDefault();
-        // console.log(event.code);
-        // console.log(event.which);
-    }
+    // if (!(event.key in allowedKeys) && !(event.code === 'Backspace') && !(event.code === 'Delete')) {
+    //     event.preventDefault();
+    //     // console.log(event.code);
+    //     // console.log(event.which);
+    // }
 
 }
 
 
-//TODO nickame grab
+function checkNickname() {
+    for (const letter of nicknameInput.value) {
+        if (!(letter in allowedKeys)) {
+            return true
+        }
+    }
+    return false;
+}
+
+
 function changeJSON() {
+
+    if (checkNickname()) {
+        let badNickname = document.getElementById("badNickname");
+        console.log(badNickname);
+        badNickname.innerHTML = "Zadal jsi špatné jméno. <br> A-Z nebo a-z nebo 0-9, 1 až 15 znaků";
+        nicknameInput.after("");
+        nicknameInput.after("");
+        return;
+    }
+
 
     for (let i = 8; i >= 0; i--) {
         if (leaderboard.scoreboard[i].score >= score) {
             leaderboard.scoreboard[i + 1].score = score;
             leaderboard.scoreboard[i + 1].nickname = nicknameInput.value;
-            console.log(nicknameInput.value);
+            // console.log(nicknameInput.value);
             break;
         } else {
             leaderboard.scoreboard[i + 1].score = leaderboard.scoreboard[i].score;
@@ -356,7 +413,7 @@ function changeJSON() {
 
     if (leaderboard.scoreboard[0].score < score) {
         leaderboard.scoreboard[0].score = score;
-        console.log(nicknameInput.value);
+        // console.log(nicknameInput.value);
         leaderboard.scoreboard[0].nickname = nicknameInput.value;
     }
 
@@ -385,6 +442,7 @@ function gameRestart(){
     nickname.style.visibility = "hidden";
     gameReset.style.visibility = "visible";
 
+
     gameResetButton.focus();
 
     gameEndButton.onclick = function () {
@@ -393,6 +451,10 @@ function gameRestart(){
 
     gameResetButton.onclick = function () {
         gameReset.style.visibility = "hidden";
+        for (let i = asteroids.length; i > 0; i--) {
+            asteroids.pop();
+            console.log(asteroids.length);
+        }
         gShip = generateShip();
         initAsteroids();
         score = 0;
@@ -415,12 +477,12 @@ $(document).ready( function () {
 
 
     nicknameInput.addEventListener("keypress", function (event) {
-        checkKeyForNickName(event, nicknameInput);
+        checkKeyForNickName(event);
     });
     nicknameInput.addEventListener("keydown", function (event) {
         if (event.ctrlKey && event.code === "KeyV") {
             event.preventDefault();
-            console.log(event);
+            // console.log(event);
         }
     });
 
