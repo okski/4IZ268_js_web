@@ -17,7 +17,7 @@ body {
 }
 
 #nicknameInput {
-    width: 80%;
+    width: 70%;
 }
 
 #nicknameInput:focus:after {
@@ -32,7 +32,8 @@ body {
     outline: none;
 }
 
-#resetButton:focus, #endButton:focus, #sendButton:focus, #nicknameInput:focus {
+#resetButton:focus, #endButton:focus, #sendButton:focus, #nicknameInput:focus,
+#resumeButton:focus, #escapeResetButton:focus, #escapeEndButton:focus{
     outline: none;
     border:2px solid blue;
 }
@@ -53,4 +54,8 @@ button:hover {
 #badNickname {
     margin: 0;
     color: darkred;
+}
+
+#escapeDiv {
+    left: 250px;
 }

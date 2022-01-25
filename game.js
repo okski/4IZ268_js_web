@@ -1,6 +1,9 @@
 var canvas, canvasContext, raf, gShip, bulletInterval = 0, score = 0;
 var  asteroidsSpawnTimeOut = null, asteroidHitTimeOut = null;
 var asteroids = [], bullets = [], buffer = [];
+var leaderboard, nickname, nicknameInput, gameReset, gameResetButton, gameEndButton, escapeDiv, escapeResumeButton,
+    escapeResetButton, escapeEndButton;
+
 const events = {
     KeyD: false,
     KeyA: false,
@@ -19,9 +22,13 @@ const allowedKeys = {
     Y: "Y", X: "X", C: "C", V: "V", B: "B", N: "N", M: "M",
     0: "0", 1: "1", 2: "2", 3: "3", 4: "4", 5: "5", 6: "6", 7: "7", 8: "8", 9: "9"
 }
-var leaderboard, nickname, nicknameInput, gameReset, gameResetButton, gameEndButton;
 
-
+/**
+ * This function generates instance of ship.
+ * @returns {{moveForward: moveForward, turnRight: turnRight, draw: draw, life: number, angleRaw: number, accely: number,
+ * accelx: number, x: number, turnLeft: turnLeft, y: number, angle: number, shoot: shoot, applyAccel: applyAccel}}
+ * instance of ship
+ */
 function generateShip() {
     return {
         x: canvas.width/2,
@@ -66,11 +73,11 @@ function generateShip() {
         },
         turnRight: function () {
             // console.log(this.angleRaw);
-            if (localStorage.getItem("rotationDegree") > 90) {
+            if (localStorage.getItem("rotationDegree") > 90 || localStorage.getItem("rotationDegree") < -90) {
                 localStorage.setItem("rotationDegree", Number("5"));
             }
 
-            if (sessionStorage.getItem("rotationDegree") > 90) {
+            if (sessionStorage.getItem("rotationDegree") > 90 || sessionStorage.getItem("rotationDegree") < -90) {
                 sessionStorage.setItem("rotationDegree", Number("5"));
             }
 
@@ -86,11 +93,11 @@ function generateShip() {
         },
         turnLeft: function () {
             // console.log(this.angleRaw);
-            if (localStorage.getItem("rotationDegree") > 90) {
+            if (localStorage.getItem("rotationDegree") > 90 || localStorage.getItem("rotationDegree") < -90) {
                 localStorage.setItem("rotationDegree", Number("5"));
             }
 
-            if (sessionStorage.getItem("rotationDegree") > 90) {
+            if (sessionStorage.getItem("rotationDegree") > 90 || sessionStorage.getItem("rotationDegree") < -90) {
                 sessionStorage.setItem("rotationDegree", Number("5"));
             }
 
@@ -124,7 +131,13 @@ function generateShip() {
     }
 }
 
-
+/**
+ *  This function generates instance of bullet.
+ *  @param x x coordinate of ship
+ *  @param y y coordinate of ship
+ *  @param angle angle of ship
+ *  @returns {{vecy: number, vecx: number, x, width: number, y, draw: draw}} instance of bullet
+ */
 function generateBullet(x, y, angle) {
     return {
         x: x,
@@ -138,7 +151,10 @@ function generateBullet(x, y, angle) {
     }
 }
 
-
+/**
+ *  This function generates instance of asteroid.
+ *  @returns {{vecy: number, vecx: number, x: number, width: number, y: number, draw: draw}} instance of asteroid
+ */
 function generateAsteroid() {
     let x, y, vecx, vecy;
     x = Math.floor(Math.random() * canvas.width + 1);
@@ -184,7 +200,9 @@ function generateAsteroid() {
     };
 }
 
-
+/**
+ *  This function initialize number of asteroids and give them in asteroids array.
+ */
 function initAsteroids() {
     let amount;
     amount = Math.floor(Math.random() * 10 + 10);
@@ -194,15 +212,22 @@ function initAsteroids() {
     }
 }
 
-
+/**
+ *  This function checks interference between asteroid and object.
+ *  @param object can be ship or bullet
+ *  @param asteroid instance of asteroid
+ *  @returns {boolean} return true if interfered and false if not
+ */
 function checkInterference(object, asteroid) {
-    if (object.x >= asteroid.x && object.x <= asteroid.x + asteroid.width &&
-        object.y >= asteroid.y - asteroid.width/2 && object.y <= asteroid.y + asteroid.width/2) {
-        return true;
-    }
+    return object.x >= asteroid.x && object.x <= asteroid.x + asteroid.width &&
+        object.y >= asteroid.y - asteroid.width / 2 && object.y <= asteroid.y + asteroid.width / 2;
+
 }
 
-
+/**
+ *  This function moves bullet.
+ *  @param bullet instance of bullet
+ */
 function moveBullet(bullet) {
     bullet.x += 5 * bullet.vecx;
     bullet.y += 5 * bullet.vecy * - 1;
@@ -210,7 +235,10 @@ function moveBullet(bullet) {
     bullet.draw();
 }
 
-
+/**
+ *  This function moves asteroid.
+ *  @param asteroid instance of asteroid
+ */
 function moveAsteroid(asteroid) {
     asteroid.draw();
 
@@ -234,17 +262,19 @@ function moveAsteroid(asteroid) {
     }
 }
 
-
-function moveShip() {
-    const shipMovement = {
+/**
+ *  This function calls function that moves ship or shoots bullet depending on pressed key.
+ */
+function shipAction() {
+    const shipAction = {
         KeyD: "turnRight",
         KeyA: "turnLeft",
         KeyW: "moveForward",
         Space: "shoot"
     };
-    for (let i in shipMovement) {
+    for (let i in shipAction) {
         if (events[i]) {
-            gShip[shipMovement[i]]();
+            gShip[shipAction[i]]();
         }
     }
 
@@ -253,19 +283,18 @@ function moveShip() {
     gShip.draw();
 }
 
-function initScore() {
+/**
+ *  This function renders score on canvas.
+ */
+function renderScore() {
     canvasContext.font = '20px serif';
     canvasContext.fillText('Skóre: ' + score, 10, 25);
 }
 
-
+/**
+ *  This function renders live on canvas.
+ */
 function renderLife() {
-    // if (gShip.life === 3) {
-    //     canvasContext.fillRect( 10,  30, 10, 10);
-    //     canvasContext.fillRect( 25,  30, 10, 10);
-    //     canvasContext.fillRect( 40,  30, 10, 10);
-    //     canvasContext.fillRect( 55,  30, 10, 10);
-    // }
 
     if (gShip.life > 3) {
         canvasContext.fillText("Životy: " + gShip.life.toString(), 10, 50)
@@ -293,16 +322,24 @@ function renderLife() {
     }
 }
 
+/**
+ *  This function renders canvas and check interference of objects.
+ *  If the game ends and user got score better than one of top 10, then it shows input for nickname, else ask user question.
+ */
 function gameLoop() {
     canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+
+
 
     // console.log(leaderboard);
 
     bulletInterval++;
 
-    moveShip();
-    initScore();
+    shipAction();
+    renderScore();
     renderLife();
+
+
 
     for (let bullet of bullets) {
         moveBullet(bullet);
@@ -360,7 +397,33 @@ function gameLoop() {
         }
     }
 
+    if (events["Escape"]) {
+        escapeDiv.style.visibility = "visible";
 
+        escapeResumeButton.focus();
+
+        escapeResumeButton.onclick = function () {
+            escapeDiv.style.visibility = "hidden";
+            gameLoop();
+        };
+
+        escapeEndButton.onclick = function () {
+            location.href='menu.html';
+        };
+
+        escapeResetButton.onclick = function () {
+            escapeDiv.style.visibility = "hidden";
+            for (let i = asteroids.length; i > 0; i--) {
+                asteroids.pop();
+                // console.log(asteroids.length);
+            }
+            gShip = generateShip();
+            initAsteroids();
+            score = 0;
+            gameLoop();
+        }
+        return;
+    }
 
     if (asteroids.length === 0 && asteroidsSpawnTimeOut === null) {
         asteroidsSpawnTimeOut = setTimeout(function () {
@@ -374,26 +437,10 @@ function gameLoop() {
     }
 }
 
-function checkKeyForNickName(event) {
-    // console.log(event);
-
-    if (event.key === "Escape") {
-        //TODO nabídka vrátit se zpět nebo pokračovat
-    }
-
-    if (event.key === "Enter") {
-        changeJSON();
-    }
-
-    // if (!(event.key in allowedKeys) && !(event.code === 'Backspace') && !(event.code === 'Delete')) {
-    //     event.preventDefault();
-    //     // console.log(event.code);
-    //     // console.log(event.which);
-    // }
-
-}
-
-
+/**
+ *  This function checks if the input for nickname is valid.
+ *  @returns {boolean} return false if input is valid and true when invalid
+ */
 function checkNickname() {
     if (nicknameInput.value.length === 0) {
         return true;
@@ -407,7 +454,10 @@ function checkNickname() {
     return false;
 }
 
-
+/**
+ *  This function handles bad input from user in nickname.
+ *  If the input is valid then changes leaderboard and call function saveJSON.
+ */
 function changeJSON() {
 
     if (checkNickname()) {
@@ -441,6 +491,10 @@ function changeJSON() {
     saveJSON();
 }
 
+/**
+ *  This function posts JSON file of leaderboard to save on server.
+ *  Then calls function gameRestart.
+ */
 function saveJSON() {
     $.ajax({
         url: "https://akce.cu.ma/saveJSON.php",
@@ -459,6 +513,10 @@ function saveJSON() {
     gameRestart();
 }
 
+/**
+ *  This function shows user two buttons to choose from.
+ *  Either take user to menu, or initialize and play new game.
+ */
 function gameRestart(){
     nickname.style.visibility = "hidden";
     gameReset.style.visibility = "visible";
@@ -474,7 +532,7 @@ function gameRestart(){
         gameReset.style.visibility = "hidden";
         for (let i = asteroids.length; i > 0; i--) {
             asteroids.pop();
-            console.log(asteroids.length);
+            // console.log(asteroids.length);
         }
         gShip = generateShip();
         initAsteroids();
@@ -483,7 +541,9 @@ function gameRestart(){
     }
 }
 
-
+/**
+ *  Initialization of objects, variables, event handlers and call function for game after the document is ready.
+ */
 $(document).ready( function () {
     canvas = document.getElementById('game');
     canvasContext = canvas.getContext('2d');
@@ -492,13 +552,20 @@ $(document).ready( function () {
 
     nickname = document.getElementById("nickname");
     nicknameInput = document.getElementById("nicknameInput");
+
     gameReset = document.getElementById("gameReset");
     gameResetButton = document.getElementById("resetButton");
     gameEndButton = document.getElementById("endButton");
 
+    escapeDiv = document.getElementById("escapeDiv");
+    escapeResumeButton = document.getElementById("resumeButton");
+    escapeResetButton = document.getElementById("escapeResetButton");
+    escapeEndButton = document.getElementById("escapeEndButton");
 
     nicknameInput.addEventListener("keypress", function (event) {
-        checkKeyForNickName(event);
+        if (event.key === "Enter") {
+            changeJSON();
+        }
     });
     nicknameInput.addEventListener("keydown", function (event) {
         if (event.ctrlKey && event.code === "KeyV") {
@@ -535,6 +602,11 @@ $(document).ready( function () {
 
 
         if (event.code === "Space") {
+            event.preventDefault();
+        }
+
+
+        if (event.code === "Escape") {
             event.preventDefault();
         }
 

@@ -13,7 +13,8 @@
         <script  src="game.js"></script>
         <div id="nickname" class="placement">
             <label for="nicknameInput">Zadej svoji přezdívku:</label>
-            <input type="text" id="nicknameInput" name="nicknameInput" tabindex="1" maxlength="15">
+            <input type="text" id="nicknameInput" name="nicknameInput" tabindex="1" maxlength="15"
+                   placeholder="a-z nebo A-z nebo 0-9, 1 až 15 znaků">
             <br>
             <p id="badNickname"></p>
             <button onclick="changeJSON()" id="sendButton" tabindex="2">Potvrdit</button>
@@ -23,6 +24,11 @@
             <br>
             <button id="resetButton" tabindex="1">Ano</button>
             <button id="endButton" tabindex="2">Ne</button>
+        </div>
+        <div id="escapeDiv" class="placement">
+            <button id="resumeButton" tabindex="1">Pokračovat</button>
+            <button id="escapeResetButton" tabindex="2">Spustit znovu</button>
+            <button id="escapeEndButton" tabindex="3">Ukončit</button>
         </div>
     </body>
 </html>
