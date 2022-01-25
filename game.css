@@ -1,5 +1,5 @@
 body {
-    background-color: black;
+    /*background-color: black;*/
 }
 
 .placement {
@@ -43,6 +43,9 @@ body {
 }
 
 canvas {
+    /*position: absolute;*/
+    /*top: 0;*/
+    /*left: 0;*/
     border: 1px solid black;
     background-color: white;
 }
