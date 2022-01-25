@@ -516,7 +516,6 @@ function cheat() {
  */
 $(document).ready( function () {
     canvas = document.getElementById('game');
-    console.log(window.innerHeight, window.innerWidth);
     // canvas.height = window.innerHeight; //  - 25
     // canvas.width = window.innerWidth; // - 20
     canvasContext = canvas.getContext('2d');
