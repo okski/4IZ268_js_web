@@ -27,10 +27,23 @@ const allowedKeys = {
 }
 
 /**
- * This function generates instance of ship.
- * @returns {{moveForward: moveForward, turnRight: turnRight, draw: draw, life: number, angleRaw: number, accely: number,
- * accelx: number, x: number, turnLeft: turnLeft, y: number, angle: number, shoot: shoot, applyAccel: applyAccel}}
- * instance of ship
+ *  This function sets valid rotation degree if someone tempered with it. 
+ */
+function setValidDegree() {
+    if (localStorage.getItem("rotationDegree") > 90 || localStorage.getItem("rotationDegree") < -90) {
+        localStorage.setItem("rotationDegree", Number("5"));
+    }
+
+    if (sessionStorage.getItem("rotationDegree") > 90 || sessionStorage.getItem("rotationDegree") < -90) {
+        sessionStorage.setItem("rotationDegree", Number("5"));
+    }
+}
+
+/**
+ *  This function generates instance of ship.
+ *  @returns {{moveForward: moveForward, turnRight: turnRight, draw: draw, life: number, angleRaw: number, accely: number,
+ *  accelx: number, x: number, turnLeft: turnLeft, y: number, angle: number, shoot: shoot, applyAccel: applyAccel}}
+ *  instance of ship
  */
 function generateShip() {
     return {
@@ -40,19 +53,20 @@ function generateShip() {
         angleRaw: 0,
         accelx: 0,
         accely: 0,
+        width: 20,
         life: 3,
         draw: function () {
             // canvasContext.fillStyle = "#FF0000";
-            // canvasContext.fillRect(this.x -20/2, this.y -20/2, 20, 20);
+            // canvasContext.fillRect(this.x -this.width/2, this.y -this.width/2, this.width, this.width);
 
             canvasContext.fillStyle = "#000000";
             let x1, y1, x2, y2, x3, y3, x1r, y1r, x2r, y2r, x3r, y3r;
             this.angle = this.angleRaw*(Math.PI/180);
             x1 = this.x;
-            y1 = this.y - 20 / 2;
-            x2 = this.x + 20 / 2;
-            y2 = this.y + 20 / 2;
-            x3 = this.x - 20 / 2;
+            y1 = this.y - this.width / 2;
+            x2 = this.x + this.width / 2;
+            y2 = this.y + this.width / 2;
+            x3 = this.x - this.width / 2;
             y3 = y2;
 
             x1r = ((x1 - this.x) * Math.cos(this.angle) - (y1 - this.y) * Math.sin(this.angle) + this.x);
@@ -74,14 +88,7 @@ function generateShip() {
 
         },
         turnRight: function () {
-            if (localStorage.getItem("rotationDegree") > 90 || localStorage.getItem("rotationDegree") < -90) {
-                localStorage.setItem("rotationDegree", Number("5"));
-            }
-
-            if (sessionStorage.getItem("rotationDegree") > 90 || sessionStorage.getItem("rotationDegree") < -90) {
-                sessionStorage.setItem("rotationDegree", Number("5"));
-            }
-
+            setValidDegree();
 
             if (sessionStorage.getItem("rotationDegree")) {
                 this.angleRaw += Number(sessionStorage.getItem("rotationDegree"));
@@ -93,13 +100,7 @@ function generateShip() {
             }
         },
         turnLeft: function () {
-            if (localStorage.getItem("rotationDegree") > 90 || localStorage.getItem("rotationDegree") < -90) {
-                localStorage.setItem("rotationDegree", Number("5"));
-            }
-
-            if (sessionStorage.getItem("rotationDegree") > 90 || sessionStorage.getItem("rotationDegree") < -90) {
-                sessionStorage.setItem("rotationDegree", Number("5"));
-            }
+            setValidDegree();
 
             if (sessionStorage.getItem("rotationDegree")) {
                 this.angleRaw -= Number(sessionStorage.getItem("rotationDegree"));
@@ -111,6 +112,22 @@ function generateShip() {
             }
         },
         moveForward: function () {
+            if (this.x > canvas.width) {
+                this.x = 0;
+            }
+
+            if (this.x < 0) {
+                this.x = canvas.width;
+            }
+
+            if (this.y > canvas.height) {
+                this.y = 0;
+            }
+
+            if (this.y < 0) {
+                this.y = canvas.height;
+            }
+
             this.accelx = 2 * Math.sin(this.angle);
             this.accely = 2 * Math.cos(this.angle);
         },
@@ -144,7 +161,7 @@ function generateBullet(x, y, angle) {
         y: y,
         vecx: Math.sin(angle),
         vecy: Math.cos(angle),
-        width: 10,
+        width: 6,
         draw: function () {
             canvasContext.fillRect(this.x - this.width/2, this.y - this.width/2, this.width, this.width);
         }
@@ -195,6 +212,7 @@ function generateAsteroid() {
             canvasContext.lineTo(this.x + this.width / 2, this.y - this.width / 2);
             canvasContext.lineTo(this.x + this.width, this.y);
             canvasContext.lineTo(this.x + this.width / 2, this.y + this.width / 2);
+            canvasContext.lineTo(this.x , this.y);
             canvasContext.fill();
         }
     };
@@ -219,8 +237,17 @@ function initAsteroids() {
  *  @returns {boolean} return true if interfered and false if not
  */
 function checkInterference(object, asteroid) {
-    return object.x >= asteroid.x && object.x <= asteroid.x + asteroid.width &&
-        object.y >= asteroid.y - asteroid.width / 2 && object.y <= asteroid.y + asteroid.width / 2;
+
+
+    if(object.x >= asteroid.x && object.y <= asteroid.y + asteroid.width / 2 && object.x - asteroid.x >= asteroid.y - object.y &&
+        object.x <= asteroid.x + asteroid.width && object.y <= asteroid.y + asteroid.width / 2 && asteroid.x - object.x <= asteroid.y - object.y &&
+        object.x >= asteroid.x && object.y >= asteroid.y - asteroid.width / 2 && object.x - asteroid.x >= object.y - asteroid.y &&
+        object.x <= asteroid.x + asteroid.width && object.y >= asteroid.y - asteroid.width / 2 && asteroid.x - object.x <= object.y - asteroid.y) {
+        return true;
+    }
+
+    // return object.x >= asteroid.x && object.x <= asteroid.x + asteroid.width &&
+    //     object.y >= asteroid.y - asteroid.width / 2 && object.y <= asteroid.y + asteroid.width / 2;
 
 }
 
@@ -233,6 +260,12 @@ function moveBullet(bullet) {
     bullet.y += 5 * bullet.vecy * - 1;
 
     bullet.draw();
+
+    if (bullet.x > canvas.width || bullet.x < 0 || bullet.y > canvas.height || bullet.y < 0) {
+        let index = bullets.indexOf(bullet);
+        bullets.splice(index, 1);
+    }
+
 }
 
 /**
@@ -245,20 +278,20 @@ function moveAsteroid(asteroid) {
     asteroid.x += asteroid.vecx;
     asteroid.y += asteroid.vecy;
 
-    if (asteroid.x > canvas.width) {
-        asteroid.x = 0;
+    if (asteroid.x + asteroid.width / 2 > canvas.width) {
+        asteroid.x = - asteroid.width / 2;
     }
 
-    if (asteroid.x < 0) {
-        asteroid.x = canvas.width;
+    if (asteroid.x + asteroid.width / 2 < 0) {
+        asteroid.x = canvas.width - asteroid.width / 2;
     }
 
     if (asteroid.y > canvas.height) {
-        asteroid.y = 0;
+        asteroid.y = - asteroid.y;
     }
 
     if (asteroid.y < 0) {
-        asteroid.y = canvas.height;
+        asteroid.y = canvas.height + asteroid.y;
     }
 }
 
@@ -279,7 +312,6 @@ function shipAction() {
     }
 
     gShip.applyAccel();
-
     gShip.draw();
 }
 
@@ -304,21 +336,18 @@ function renderLife() {
         canvasContext.fillRect( 10,  30, 10, 10);
         canvasContext.fillRect( 25,  30, 10, 10);
         canvasContext.fillRect( 40,  30, 10, 10);
-        // canvasContext.strokeRect( 55,  30, 10, 10);
     }
 
     if (gShip.life === 2) {
         canvasContext.fillRect( 10,  30, 10, 10);
         canvasContext.fillRect( 25,  30, 10, 10);
         canvasContext.strokeRect( 40,  30, 10, 10);
-        // canvasContext.strokeRect( 55,  30, 10, 10);
     }
 
     if (gShip.life === 1) {
         canvasContext.fillRect( 10,  30, 10, 10);
         canvasContext.strokeRect( 25,  30, 10, 10);
         canvasContext.strokeRect( 40,  30, 10, 10);
-        // canvasContext.strokeRect( 55,  30, 10, 10);
     }
 }
 
@@ -367,10 +396,12 @@ function gameLoop() {
                     dataType: "json",
                     success: function (json) {
                         leaderboard = json;
+
                         if (leaderboard.scoreboard[leaderboard.scoreboard.length - 1].score >= score) {
-                            gameRestart();
+                            gameRestartMenu();
                             return;
                         }
+
                         nickname.style.visibility = "visible";
                         nicknameInput.focus();
                     }
@@ -380,18 +411,12 @@ function gameLoop() {
         }
     }
 
-
     if (escapeEvent["Escape"]) {
         escapeDiv.style.visibility = "visible";
         escapeResumeButton.focus();
 
         return;
     }
-
-    // if (escapeEvent["Escape"] && escapeDiv.style.visibility === "visible") {
-    //     escapeDiv.style.visibility = "hidden";
-    //     gameLoop();
-    // }
 
     if (asteroids.length === 0 && asteroidsSpawnTimeOut === null) {
         asteroidsSpawnTimeOut = setTimeout(function () {
@@ -427,15 +452,11 @@ function checkNickname() {
  *  If the input is valid then changes leaderboard and call function saveJSON.
  */
 function changeJSON() {
-
     if (checkNickname()) {
         let badNickname = document.getElementById("badNickname");
         badNickname.innerHTML = "Zadal jsi špatné jméno. <br> A-Z nebo a-z nebo 0-9, 1 až 15 znaků";
-        nicknameInput.after("");
-        nicknameInput.after("");
         return;
     }
-
 
     for (let i = 8; i >= 0; i--) {
         if (leaderboard.scoreboard[i].score >= score) {
@@ -458,7 +479,7 @@ function changeJSON() {
 
 /**
  *  This function posts JSON file of leaderboard to save on server.
- *  Then calls function gameRestart.
+ *  Then calls function gameRestartMenu.
  */
 function saveJSON() {
     $.ajax({
@@ -468,21 +489,18 @@ function saveJSON() {
         data: JSON.stringify(leaderboard)
     });
 
-    gameRestart();
+    gameRestartMenu();
 }
 
 /**
  *  This function shows user two buttons to choose from.
  *  Either take user to menu, or initialize and play new game.
  */
-function gameRestart(){
+function gameRestartMenu(){
     nickname.style.visibility = "hidden";
     gameReset.style.visibility = "visible";
 
-
     gameResetButton.focus();
-
-
 }
 
 function cheat() {
@@ -509,6 +527,21 @@ function cheat() {
     if (event.which === 73 && buffer[0] === "o" && buffer[1] === "k" && buffer[2] === "s" && buffer[3] === "k") {
         gShip.life = 1000;
     }
+}
+
+/**
+ *  This function resets instance of game.
+ */
+function resetInstance() {
+    for (let i = asteroids.length; i > 0; i--) {
+        asteroids.pop();
+    }
+    for (let i = bullets.length; i > 0; i--) {
+        bullets.pop();
+    }
+    gShip = generateShip();
+    initAsteroids();
+    score = 0;
 }
 
 /**
@@ -587,12 +620,7 @@ $(document).ready( function () {
 
     escapeResetButton.onclick = function () {
         escapeDiv.style.visibility = "hidden";
-        for (let i = asteroids.length; i > 0; i--) {
-            asteroids.pop();
-        }
-        gShip = generateShip();
-        initAsteroids();
-        score = 0;
+        resetInstance();
         escapeEvent["Escape"] = false;
         gameLoop();
     }
@@ -603,12 +631,7 @@ $(document).ready( function () {
 
     gameResetButton.onclick = function () {
         gameReset.style.visibility = "hidden";
-        for (let i = asteroids.length; i > 0; i--) {
-            asteroids.pop();
-        }
-        gShip = generateShip();
-        initAsteroids();
-        score = 0;
+        resetInstance();
         gameLoop();
     }
 

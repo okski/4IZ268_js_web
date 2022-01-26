@@ -1,11 +1,9 @@
 var leaderboard, buffer = [];
 
+/**
+ *  This initializes eventListener and if buffer is correct then call function getEmptyJSON.
+ */
 $(document).ready( function () {
-    // if (localStorage.getItem("rotationDegree") && sessionStorage.isNewSession) {
-    //     sessionStorage.setItem("rotationDegree", localStorage.getItem("rotationDegree"));
-    // }
-
-
     window.addEventListener("keypress", function (event) {
         if (event.code === "KeyR") {
             buffer[0] = "r";
@@ -25,6 +23,9 @@ $(document).ready( function () {
     })
 })
 
+/**
+ *  This gets empty JSON and if successful calls function postFunction.
+ */
 function getEmptyJSON() {
     $.ajax({
         url: "https://eso.vse.cz/~hosj03/klient_web/leaderboard.json",
@@ -38,17 +39,14 @@ function getEmptyJSON() {
     });
 }
 
+/**
+ *  This funtion post empty JSON to server.
+ */
 function postFunction() {
     $.ajax({
         url: "https://akce.cu.ma/saveJSON.php",
         type: "POST",
         dataType: "json",
-        data: JSON.stringify(leaderboard),
-        // success: function () {
-        //     document.write('<h1>Success</h1>');
-        // },
-        // error: function (XMLHttpRequest, textStatus, errorThrown) {
-        //     console.log(XMLHttpRequest, textStatus, errorThrown);
-        // }
+        data: JSON.stringify(leaderboard)
     });
 }

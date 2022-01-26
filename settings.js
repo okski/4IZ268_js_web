@@ -1,5 +1,8 @@
 var slider, value;
 
+/**
+ *  This initializes variables.
+ */
 $(document).ready(function () {
 
 
@@ -22,19 +25,29 @@ $(document).ready(function () {
     }
 })
 
+/**
+ *  This function save settings in session storage.
+ */
 function applySettings() {
     sessionStorage.setItem("rotationDegree", Number(value.innerHTML));
 }
 
+/**
+ *  This function save settings in session and local storage.
+ */
 function saveSettings() {
     sessionStorage.setItem("rotationDegree", Number(value.innerHTML));
     localStorage.setItem("rotationDegree", Number(value.innerHTML));
 }
 
+/**
+ *  This function deletes values from session and local storage and set slider to default value.
+ */
 function resetSettings() {
     localStorage.removeItem("rotationDegree");
     sessionStorage.removeItem("rotationDegree");
     // sessionStorage.setItem("rotationDegree", Number("5"));
     slider.value = sessionStorage.getItem("rotationDegree");
+    slider.value = 5;
     value.innerHTML =  slider.value;
 }

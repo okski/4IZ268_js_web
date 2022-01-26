@@ -1,13 +1,11 @@
 var leaderboard;
 var tBody;
 
+/**
+ *  This initializes variables and call function fillTable
+ */
 $(document).ready( function () {
     tBody = document.getElementById("tbody");
-
-    // console.log(table);
-
-    // leaderboard.json
-    // https://eso.vse.cz/~hosj03/klient_web/leaderboard.json
 
     $.ajax({
         url: "https://akce.cu.ma/getJSON.php",
@@ -21,6 +19,9 @@ $(document).ready( function () {
     });
 })
 
+/**
+ *  This function fills table with JSON data.
+ */
 function fillTable() {
     // console.log(leaderboard);
     //
