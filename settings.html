@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Javascript aplikace | nastavení</title>
+<!--        <link rel="stylesheet" href="style.css">-->
+        <link rel="stylesheet" href="settings.css">
+    </head>
+    <body>
+        <script src="jquery-3.6.0.min.js"></script>
+        <script src="settings.js"></script>
+            <div class="container">
+                <div class="containerButton">
+                    <button onclick="location.href='menu.html'" type="button" tabindex="1">Zpět</button>
+                </div>
+                <label for="range">Stupně otáčení:
+                    <span id="value"></span>
+                </label>
+                <input type="range" min="1" max="90" class="slider" id="range" tabindex="2" value="5">
+
+            <div class="buttons">
+                <button id="applyButton" tabindex="3" onclick="applySettings()">Potvrdit</button>
+                <button id="saveButton" tabindex="4" onclick="saveSettings()">Uložit</button>
+                <button id="resetButton" tabindex="5" onclick="resetSettings()">Resetovat</button>
+            </div>
+        </div>
+    </body>
+</html>

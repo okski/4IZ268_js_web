@@ -1,0 +1,34 @@
+* {
+    background-color: black;
+    color: white;
+}
+
+.containerButton {
+    width: 25%;
+}
+
+.slider {
+    width: 90%;
+    margin-left: 5%;
+}
+
+label {
+    margin-left: 5%;
+}
+
+.buttons {
+    position: absolute;
+    margin-left: 5%;
+}
+
+button {
+    height: 25%;
+    width: 50%;
+    margin: 10px 0 10px 0;
+    font-size: 1.75em;
+}
+
+button:focus, button:hover {
+    outline: none;
+    border:2px solid blue;
+}
